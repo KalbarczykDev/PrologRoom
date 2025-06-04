@@ -2,7 +2,7 @@
 grid_size(10,10).
 
 %Dynamic State
-:- dynamic has_key/0.
+:- dynamic has_key/0. %elementy dymaniczne
 :- dynamic player_at/2.
 player_at(2,2).
 
@@ -25,7 +25,7 @@ occupies(door, 5, 10).
 
 
 % Top and bottom borders (horizontal walls)
-occupies(h_wall, 1, 1). occupies(h_wall, 1, 2). occupies(h_wall, 1, 3). occupies(h_wall, 1, 4). occupies(h_wall, 1, 5).
+occupies(h_wall, 1, 1). occupies(h_wall, 1, 2). occupies(h_wall, 1, 3). occupies(h_wall, 1, 4). occupies(h_wall, 1, 5). % 7a Termy/termy złożone 
 occupies(h_wall, 1, 6). occupies(h_wall, 1, 7). occupies(h_wall, 1, 8). occupies(h_wall, 1, 9). occupies(h_wall, 1, 10).
 
 occupies(h_wall, 10, 1). occupies(h_wall, 10, 2). occupies(h_wall, 10, 3). occupies(h_wall, 10, 4). occupies(h_wall, 10, 5).
@@ -54,7 +54,7 @@ occupies(h_wall, 8, 5). occupies(h_wall, 8, 6). occupies(h_wall, 8, 7).
 
 
 
-free(X, Y) :-
+free(X, Y) :- %klauzule
     is_node(X, Y),
      (
         \+ occupies(_, X, Y)      
@@ -67,7 +67,7 @@ free(X, Y) :-
     \+ occupies(h_wall, X, Y).
 
 %symbol mapping 
-symbol_at(X, Y, '@') :- player_at(X, Y), !.
+symbol_at(X, Y, '@') :- player_at(X, Y), !. %cięcie 
 symbol_at(X, Y, 'T') :- occupies(chest, X, Y), !.
 symbol_at(X, Y, 'D') :- occupies(door, X, Y), !.
 symbol_at(X, Y, '|') :- occupies(v_wall, X, Y), !.
@@ -90,6 +90,8 @@ print_grid :-
     grid_size(MaxRow, _),
     print_grid(1, MaxRow).
 
+%rekurencja 
+
 print_grid(Row, MaxRow) :-
     Row > MaxRow, !.
 print_grid(Row, MaxRow) :-
@@ -97,11 +99,13 @@ print_grid(Row, MaxRow) :-
     NextRow is Row + 1,
     print_grid(NextRow, MaxRow).
 
+%unifikacja
 %movement
 delta(u, -1, 0). %up
 delta(d, 1, 0). %down 
 delta(l, 0, -1). %left
 delta(r, 0, 1). %right
+
 
 move(Direction) :-
     player_at(X, Y),
@@ -128,7 +132,7 @@ ambient_message("Your footsteps echo through the maze.").
 ambient_message("Places like this... always hide something.").
 ambient_message("Not a soul in sight. That’s never a good sign.").
 random_ambient_message :-
-    findall(Msg, ambient_message(Msg), Messages),
+    findall(Msg, ambient_message(Msg), Messages), %list/operacje na listach 
     random_member(Msg, Messages),
     writeln(Msg).
 
