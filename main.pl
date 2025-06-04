@@ -4,7 +4,7 @@ grid_size(10,10).
 %Dynamic State
 :- dynamic has_key/0.
 :- dynamic player_at/2.
-player_at(5,5).
+player_at(2,2).
 
 %Grid Definition
 is_node(X, Y) :-
@@ -15,8 +15,7 @@ is_node(X, Y) :-
 % chests      
 occupies(chest, 9, 9).      
 occupies(chest, 4, 8).     
-occupies(chest, 6, 2).     
-occupies(chest, 8, 5).      
+occupies(chest, 4, 2).         
 occupies(chest, 9, 9).% final chest
 
 
@@ -41,18 +40,18 @@ occupies(v_wall, 7, 10). occupies(v_wall, 8, 10). occupies(v_wall, 9, 10).
 
 % Inner vertical walls
 occupies(v_wall, 3, 3). occupies(v_wall, 4, 3). occupies(v_wall, 5, 3).
-occupies(v_wall, 7, 3). occupies(v_wall, 8, 3). occupies(v_wall, 9, 3).
+occupies(v_wall, 8, 3). occupies(v_wall, 9, 3).
 
-occupies(v_wall, 2, 6). occupies(v_wall, 3, 6). occupies(v_wall, 4, 6).
+occupies(v_wall, 2, 6). 
 occupies(v_wall, 6, 6). occupies(v_wall, 7, 6). occupies(v_wall, 8, 6).
 
 occupies(v_wall, 5, 8). occupies(v_wall, 6, 8). occupies(v_wall, 7, 8).
 
 % Inner horizontal walls
 occupies(h_wall, 3, 2). occupies(h_wall, 3, 3). occupies(h_wall, 3, 4).
-occupies(h_wall, 6, 2). occupies(h_wall, 6, 3). occupies(h_wall, 6, 4).
+occupies(h_wall, 6, 3). occupies(h_wall, 6, 4).
 occupies(h_wall, 8, 5). occupies(h_wall, 8, 6). occupies(h_wall, 8, 7).
-occupies(h_wall, 9, 8). occupies(h_wall, 9, 9).
+
 
 
 free(X, Y) :-
@@ -110,7 +109,7 @@ move(Direction) :-
     NX is X + DX,
     NY is Y + DY,
     (   move_to(NX, NY)
-    ->  format('You moved ~w to (~w, ~w).~n', [Direction, NX, NY]),
+    ->  format('New position (~w, ~w).~n', [NX, NY]),
         post_move_action(NX, NY)
     ;   writeln('Cannot move there.')
     ).
@@ -119,6 +118,19 @@ move_to(X, Y) :-
     free(X, Y),
     retract(player_at(_, _)),
     assertz(player_at(X, Y)).
+
+%ambient messages
+ambient_message("Winds howling...").
+ambient_message("You hear distant footsteps...").
+ambient_message("A cold breeze passes by.").
+ambient_message("You step on something... but it's just a stone.").
+ambient_message("Your footsteps echo through the maze.").
+ambient_message("Places like this... always hide something.").
+ambient_message("Not a soul in sight. That’s never a good sign.").
+random_ambient_message :-
+    findall(Msg, ambient_message(Msg), Messages),
+    random_member(Msg, Messages),
+    writeln(Msg).
 
 
 %interactions
@@ -130,7 +142,7 @@ post_move_action(X, Y) :-
             writeln('You used the key and opened the door. You win!'), halt
         ;   writeln('The door is locked. Maybe there\'s a key somewhere?')
         )
-    ;   writeln('Nothing interesting here.')
+    ;   random_ambient_message
     ).
 
 open_chest(X, Y) :-
@@ -143,14 +155,15 @@ open_chest(X, Y) :-
     ).
 
 %game loop
-game_loop :-
+game_loop :-    
     print_grid,
 write('Enter command (u-up, d-down, l-left, r-right, exit): '),
     read(Command),
     handle_command(Command).
 
 handle_command(exit) :-
-    writeln('Leaving the game!'), !.
+    writeln('Leaving the game!'), !,
+    halt.
 
 handle_command(Direction) :-
     move(Direction), nl,
@@ -161,4 +174,16 @@ handle_command(_) :-
     game_loop.
 
 start :-
+    nl,
+    writeln("██████████████████████████████████████████████"),
+    writeln("█                                            █"),
+    writeln("█        WELCOME TO THE PROLOG ROOM          █"),
+    writeln("█                                            █"),
+    writeln("██████████████████████████████████████████████"),
+    writeln("You wake up in a dark, silent labyrinth..."),
+    writeln("Somewhere in the maze lies a hidden key."),
+    writeln("Find it and escape through the locked door."),
+    writeln("Use 'u', 'd', 'l', 'r' to move. Type 'exit' to quit."),
+    writeln("Good luck, wanderer."),
+    nl,
     game_loop.
